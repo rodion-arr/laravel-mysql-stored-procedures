@@ -1,0 +1,41 @@
+{
+    "name": "rodion-arr/laravel-mysql-stored-procedures",
+    "description": "A service for calling MySQL stored procedures with multiple data sets",
+    "type": "library",
+    "license": "MIT",
+    "keywords" : [
+        "laravel",
+        "php",
+        "stored procedure",
+        "multiple dataset",
+        "mysql"
+    ],
+    "require": {
+        "php": "^7.1.0",
+        "ext-pdo": "*",
+        "illuminate/support": "~5.0|~6.0|~7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.1",
+        "orchestra/testbench": "~3.2|~4.0"
+    },
+    "authors": [
+        {
+            "name": "Rodion Abdurakhimov",
+            "email": "rodion.arr.web@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "RodionARR\\": "src/RodionARR"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "RodionARR\\Tests\\": "tests/RodionARR"
+        }
+    },
+    "scripts": {
+        "test-ci": "./vendor/bin/phpunit -v --coverage-clover=coverage.xml --coverage-text --debug --colors=never"
+    }
+}
