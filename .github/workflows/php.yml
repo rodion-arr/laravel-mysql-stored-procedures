@@ -1,6 +1,8 @@
 name: PHP Composer
 
 on:
+  schedule:
+    - cron: '23 4 * * *' # Once, nightly
   push:
     branches: [ master ]
   pull_request:
@@ -10,7 +12,11 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    
+
+    env:
+      PHP_EXTENSIONS: dom, json, libxml, mbstring, pdo_sqlite, soap, xml, xmlwriter
+      PHP_INI_VALUES: assert.exception=1, zend.assertions=1
+
     strategy:
       fail-fast: false
       matrix:
@@ -31,21 +37,33 @@ jobs:
             dependencies: highest
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Validate composer.json and composer.lock
-      run: composer validate
+      - name: Override PHP ini values for JIT compiler
+        if: matrix.compiler == 'jit'
+        run: echo "PHP_INI_VALUES::assert.exception=1, zend.assertions=1, opcache.enable=1, opcache.enable_cli=1, opcache.optimization_level=-1, opcache.jit=1255, opcache.jit_buffer_size=32M" >> $GITHUB_ENV
 
-    - name: Install dependencies
-      run: composer install --prefer-dist --no-progress --no-suggest
+      - name: Install PHP with extensions
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          coverage: xdebug
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          ini-values: ${{ env.PHP_INI_VALUES }}
 
-    - name: Run test suite
-      run: composer run-script test-ci
+      - name: Validate composer.json and composer.lock
+        run: composer validate
 
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        file: ./coverage.xml
-        flags: unittests
-        fail_ci_if_error: true
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Run test suite
+        run: composer run-script test-ci
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.xml
+          flags: unittests
+          fail_ci_if_error: true
