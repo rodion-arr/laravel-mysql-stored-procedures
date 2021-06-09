@@ -2,15 +2,14 @@ name: PHP Composer
 
 on:
   schedule:
-    - cron: '23 4 * * *' # Once, nightly
+    - cron: "23 4 * * *" # Once, nightly
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     env:
@@ -64,4 +63,4 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: ./coverage.xml
           flags: unittests
-          fail_ci_if_error: true
+          fail_ci_if_error: false
